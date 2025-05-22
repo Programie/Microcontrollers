@@ -1,19 +1,25 @@
+import uasyncio as asyncio
 from umqtt.simple import MQTTClient
 
 class MQTT(MQTTClient):
     def __init__(self, host: str, username: str, password: str) -> None:
         super().__init__(server=host, user=username, password=password, client_id=username)
 
-    def connect(self) -> bool:
+    async def connect(self) -> bool:
         try:
             super().connect()
-            return True
-        except Exception as exeption:
-            return False
-
-    def is_connected(self) -> bool:
-        try:
-            self.ping()
+            print("MQTT connected")
             return True
         except Exception as exception:
+            print("MQTT connection failed:", exception)
             return False
+
+    async def loop(self):
+        while True:
+            try:
+                self.ping()
+            except Exception as exception:
+                print("MQTT connection lost, trying to reconnect...", exception)
+                await self.connect()
+
+            await asyncio.sleep(5)

@@ -1,30 +1,23 @@
-import time
+import uasyncio as asyncio
 
 import config
 
 from wlan import WLAN
 from mqtt import MQTT
 
-def main():
+async def main():
     wlan = WLAN(config.WLAN_SSID, config.WLAN_PASSWORD)
     mqtt = MQTT(config.MQTT_HOST, config.MQTT_USERNAME, config.MQTT_PASSWORD)
 
-    while True:
-        if wlan.is_connected():
-            if not mqtt.is_connected():
-                print("MQTT not connected, trying to connect...")
-                if mqtt.connect():
-                    print("MQTT connected")
-                else:
-                    print("MQTT connection failed!")
-        else:
-            print("WLAN not connected, trying to connect...")
-            if wlan.connect():
-                print("WLAN connected")
-            else:
-                print("WLAN connection failed!")
+    await wlan.connect()
+    await mqtt.connect()
 
-        time.sleep(10)
+    asyncio.create_task(wlan.loop())
+    asyncio.create_task(mqtt.loop())
+
+    # main loop
+    while True:
+        await asyncio.sleep(10)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
