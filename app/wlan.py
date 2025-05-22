@@ -15,19 +15,25 @@ class WLAN:
         if self.wlan.isconnected():
             return True
 
+        print("Connecting to WLAN")
+
         self.wlan.connect(self.ssid, self.password)
 
         for _ in range(10):
             if self.wlan.isconnected():
+                print("WLAN connected")
                 return True
 
             await asyncio.sleep(1)
+
+        print("WLAN connection failed:", self.wlan.status())
 
         return False
 
     async def loop(self):
         while True:
             if not self.wlan.isconnected():
+                print("WLAN connection lost, trying to reconnect...")
                 await self.connect()
 
             await asyncio.sleep(5)
