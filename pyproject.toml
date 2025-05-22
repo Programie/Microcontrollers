@@ -1,0 +1,10 @@
+[project]
+name = "Microcontrollers"
+version = "1.0.0"
+description = "Various projects for ESP32 microcontrollers using MicroPython"
+requires-python = ">=3.12"
+dependencies = [
+    "esptool>=4.8.1",
+    "micropython-esp32-stubs>=1.25.0.post2",
+    "rshell>=0.0.36",
+]
