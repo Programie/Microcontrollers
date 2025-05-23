@@ -5,16 +5,14 @@ class MQTT:
     def __init__(self, host: str, username: str, password: str) -> None:
         self.client = MQTTClient(server=host, user=username, password=password, client_id=username)
 
-        self.topic_callbacks = {}
-
-        self.client.set_callback(lambda topic, message: self.on_message(topic.decode("utf-8"), message.decode("utf-8")))
+        self.topics = set()
 
     async def connect(self) -> bool:
         try:
             self.client.connect()
             print("MQTT connected")
 
-            for topic in self.topic_callbacks.keys():
+            for topic in self.topics:
                 print("Subscribing to MQTT topic:", topic)
                 self.client.subscribe(topic)
 
@@ -29,7 +27,10 @@ class MQTT:
                 for _ in range(100):
                     self.client.check_msg()
                     await asyncio.sleep(0.1)
+            except Exception as exception:
+                print("Error while handling message:", exception)
 
+            try:
                 self.client.ping()
                 await asyncio.sleep(0.1)
             except Exception as exception:
@@ -37,15 +38,11 @@ class MQTT:
                 await self.connect()
                 await asyncio.sleep(1)
 
-    async def subscribe(self, topic: str, callback):
+    async def subscribe(self, topic: str):
         print("Subscribing to MQTT topic:", topic)
 
-        self.topic_callbacks[topic] = callback
+        self.topics.add(topic)
         self.client.subscribe(topic)
 
-    def on_message(self, topic: str, message: str):
-        if topic not in self.topic_callbacks:
-            print("Received message for unknown MQTT topic:", topic)
-            return
-
-        self.topic_callbacks[topic](message)
+    async def set_callback(self, callback):
+        self.client.set_callback(lambda topic, message: callback(topic.decode("utf-8"), message.decode("utf-8")))
