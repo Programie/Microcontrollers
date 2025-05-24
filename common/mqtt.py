@@ -6,11 +6,15 @@ class MQTT:
         self.client = MQTTClient(server=host, user=username, password=password, client_id=username)
 
         self.topics = set()
+        self.topic_callbacks = {}
+        self.callback = None
 
     async def connect(self) -> bool:
         try:
             self.client.connect()
             print("MQTT connected")
+
+            self.client.set_callback(self.on_message)
 
             for topic in self.topics:
                 print("Subscribing to MQTT topic:", topic)
@@ -38,11 +42,24 @@ class MQTT:
                 await self.connect()
                 await asyncio.sleep(1)
 
-    async def subscribe(self, topic: str):
+    def subscribe(self, topic: str, callback = None):
         print("Subscribing to MQTT topic:", topic)
+
+        if callback:
+            self.topic_callbacks[topic] = callback
 
         self.topics.add(topic)
         self.client.subscribe(topic)
 
-    async def set_callback(self, callback):
-        self.client.set_callback(lambda topic, message: callback(topic.decode("utf-8"), message.decode("utf-8")))
+    def on_message(self, topic_bytes: bytes, message_bytes: bytes):
+        topic = topic_bytes.decode("utf-8")
+        message = message_bytes.decode("utf-8")
+
+        if topic in self.topic_callbacks:
+            self.topic_callbacks[topic](topic, message)
+
+        if self.callback:
+            self.callback(topic, message)
+
+    def set_callback(self, callback):
+        self.callback = callback
