@@ -1,34 +1,10 @@
 import uasyncio as asyncio
 
-import config
+import config as config
 
-from wlan import WLAN
-from mqtt import MQTT
-
-from machine import Pin
-
-class PinManager:
-    def __init__(self):
-        self.pins = {}
-
-    def get(self, port: int) -> Pin:
-        if port not in self.pins:
-            self.pins[port] = Pin(port, Pin.OUT)
-
-        return self.pins[port]
-
-    def on(self, port: int):
-        self.get(port).on()
-
-    def off(self, port: int):
-        self.get(port).off()
-
-    async def impulse(self, port: int, duration: float):
-        pin = self.get(port)
-
-        pin.on()
-        await asyncio.sleep(duration)
-        pin.off()
+from common.wlan import WLAN
+from common.mqtt import MQTT
+from common.utils import PinManager
 
 class App:
     def __init__(self):
