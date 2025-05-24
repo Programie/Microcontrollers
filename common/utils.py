@@ -27,21 +27,25 @@ class PinManager:
 
 class ButtonHandler:
     def __init__(self, callback = None, callback_pressed = None, callback_released = None):
-        self.old_value = None
+        self.old_state = None
         self.callback = callback
         self.callback_pressed = callback_pressed
         self.callback_released = callback_released
 
     def register_irq(self, port: int):
-        Pin(port, Pin.IN, Pin.PULL_UP).irq(trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING, handler=self.handler)
+        pin = Pin(port, Pin.IN, Pin.PULL_UP)
 
-    def handler(self, pin):
-        value = pin.value()
+        self.old_state = not pin.value()
 
-        if self.old_value is None or value != self.old_value:
-            self.old_value = value
+        pin.irq(trigger=Pin.IRQ_FALLING | Pin.IRQ_RISING, handler=self.handler)
 
-            if value == 0:
+    def handler(self, pin: Pin):
+        pressed = not pin.value()
+
+        if pressed != self.old_state:
+            self.old_state = pressed
+
+            if pressed:
                 if self.callback_pressed:
                     self.callback_pressed()
             else:
