@@ -53,4 +53,4 @@ class ButtonHandler:
                     self.callback_released()
 
             if self.callback:
-                self.callback()
+                self.callback(pressed)
