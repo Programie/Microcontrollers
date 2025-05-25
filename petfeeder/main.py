@@ -3,7 +3,7 @@ import uasyncio as asyncio
 import config as config
 
 from common.wlan import WLAN
-from common.mqtt import MQTT
+from common.mqtt import MQTT, QOS_AT_LEAST_ONCE
 from common.utils import ButtonHandler, PinManager
 
 PIN_MOTOR_RELAY = 16
@@ -29,7 +29,7 @@ class App:
         await wlan.connect()
         await mqtt.connect()
 
-        mqtt.subscribe(config.MQTT_TOPIC_TRIGGER_FEED, lambda topic, message: self.trigger_feed())
+        mqtt.subscribe(config.MQTT_TOPIC_TRIGGER_FEED, lambda topic, message: self.trigger_feed(), QOS_AT_LEAST_ONCE)
 
         asyncio.create_task(wlan.loop())
         asyncio.create_task(mqtt.loop())
