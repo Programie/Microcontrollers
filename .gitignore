@@ -1,4 +1,11 @@
+# Python virtualenv
 /.venv
+
+# Project for testing stuff which should not be committed
 /test
+
+# ESP32 firmware
 /ESP32_GENERIC.bin
+
+# Config files potentially containing credentials like WLAN_SSID and WLAN_PASSWORD
 config.py
