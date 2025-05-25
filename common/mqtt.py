@@ -12,10 +12,13 @@ class Subscription:
 
 class MQTT:
     def __init__(self, host: str, username: str, password: str) -> None:
-        self.client = MQTTClient(server=host, user=username, password=password, client_id=username)
+        self.client = MQTTClient(server=host, user=username, password=password, client_id=username, keepalive=60)
 
+        self.lwt_topic = f"tele/{username}/LWT"
         self.topics: dict[str, Subscription] = {}
         self.callback = None
+
+        self.client.set_last_will(topic=self.lwt_topic, msg="Offline", retain=True)
 
     async def connect(self) -> bool:
         try:
@@ -26,6 +29,8 @@ class MQTT:
 
             for topic in self.topics.keys():
                 self.register_subscription(topic)
+
+            self.client.publish(topic=self.lwt_topic, msg="Online", retain=True)
 
             return True
         except Exception as exception:
