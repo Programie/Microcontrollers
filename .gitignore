@@ -1,2 +1,3 @@
 /.venv
+/ESP32_GENERIC.bin
 config.py
