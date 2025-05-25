@@ -49,7 +49,11 @@ class MQTT:
             self.topic_callbacks[topic] = callback
 
         self.topics.add(topic)
-        self.client.subscribe(topic)
+
+        try:
+            self.client.subscribe(topic)
+        except Exception as exception:
+            print("Unable to subscribe to MQTT topic:", exception)
 
     def on_message(self, topic_bytes: bytes, message_bytes: bytes):
         topic = topic_bytes.decode("utf-8")
