@@ -38,7 +38,8 @@ class MQTT:
                 self.client.ping()
                 await asyncio.sleep(0.1)
             except Exception as exception:
-                print("MQTT connection lost, trying to reconnect...", exception)
+                print("MQTT connection lost, trying to reconnect in 10 seconds...", exception)
+                await asyncio.sleep(10)
                 await self.connect()
                 await asyncio.sleep(1)
 
