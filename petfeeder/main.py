@@ -34,9 +34,9 @@ class App:
         asyncio.create_task(wlan.loop())
         asyncio.create_task(mqtt.loop())
 
-        # main loop
+        # Main loop sleeping for 10 ms to keep tasks responsive
         while True:
-            await asyncio.sleep(10)
+            await asyncio.sleep(0.01)
 
     def main(self):
         self.manual_feed_button_handler.register_irq(PIN_MANUAL_FEED_BUTTON)
