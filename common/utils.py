@@ -18,7 +18,9 @@ class RGBFader:
         self.fading_active = False
 
         # Force off on init
-        self.set_color(0, 0, 0)
+        self.red.duty(0)
+        self.green.duty(0)
+        self.blue.duty(0)
 
     def set_color(self, red: int, green: int, blue: int):
         self.red_value = red
