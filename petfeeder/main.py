@@ -10,6 +10,7 @@ PIN_MOTOR_RELAY = 16
 PIN_MOTOR_SWITCH = 17
 PIN_MANUAL_FEED_BUTTON = 13
 
+
 class App:
     def __init__(self):
         self.pin_manager = PinManager()
@@ -43,6 +44,7 @@ class App:
         self.motor_switch_handler.register_irq(PIN_MOTOR_SWITCH)
 
         asyncio.run(self.async_main_task())
+
 
 if __name__ == "__main__":
     App().main()

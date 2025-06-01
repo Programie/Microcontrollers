@@ -3,12 +3,14 @@ from umqtt.simple import MQTTClient
 
 QOS_FIRE_AND_FORGET = 0
 QOS_AT_LEAST_ONCE = 1
-#QOS_ONLY_ONCE = 2 # Not supported in umqtt
+# QOS_ONLY_ONCE = 2 # Not supported in umqtt
+
 
 class Subscription:
     def __init__(self, callback, qos: int = QOS_FIRE_AND_FORGET):
         self.callback = callback
         self.qos = qos
+
 
 class MQTT:
     def __init__(self, host: str, username: str, password: str) -> None:
@@ -55,7 +57,7 @@ class MQTT:
                 await self.connect()
                 await asyncio.sleep(1)
 
-    def subscribe(self, topic: str, callback = None, qos: int = 0):
+    def subscribe(self, topic: str, callback=None, qos: int = 0):
         self.topics[topic] = Subscription(callback=callback, qos=qos)
 
         self.register_subscription(topic)

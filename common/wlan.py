@@ -1,6 +1,7 @@
 import network
 import uasyncio as asyncio
 
+
 class WLAN:
     def __init__(self, ssid: str, password: str) -> None:
         self.ssid = ssid
