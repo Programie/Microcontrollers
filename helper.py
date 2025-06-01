@@ -14,7 +14,7 @@ DOCKER_IMAGE = "programie/esp32-tools"
 
 
 def docker_run(command: list[str], device: Path | None = None, volumes: list[tuple[str, str, str]] | None = None):
-    docker_command = ["docker", "run", "--rm"]
+    docker_command = ["docker", "run", "--rm", "-it"]
 
     if device:
         docker_command.append("--device")
@@ -99,6 +99,19 @@ class RebootMCU(Action):
 
         return 0
 
+class Terminal(Action):
+    def add_subcommand(self):
+        parser = self.create_subcommand("terminal", "connect to serial console")
+        parser.add_argument("--port", help="path to the microcontroller port", type=Path, default=DEFAULT_PORT)
+
+    def run(self, port: Path):
+        if not port.exists():
+            print(f"Device not found: {port}", file=sys.stderr)
+            return 1
+
+        docker_run(["picocom", str(port), "-b", "115200"], device=port)
+
+        return 0
 
 class CreateProject(Action):
     def add_subcommand(self):
@@ -149,7 +162,7 @@ class Helper:
         self.arg_parser = argparse.ArgumentParser()
         arg_subparsers = self.arg_parser.add_subparsers(required=True)
 
-        actions: list[Type[Action]] = [BuildImage, FlashFirmware, RebootMCU, CreateProject, SyncProject]
+        actions: list[Type[Action]] = [BuildImage, FlashFirmware, RebootMCU, Terminal, CreateProject, SyncProject]
         for action in actions:
             action(arg_subparser=arg_subparsers).add_subcommand()
 
