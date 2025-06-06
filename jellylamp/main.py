@@ -7,8 +7,8 @@ from common.mqtt import MQTT, QOS_AT_LEAST_ONCE
 from common.rgb import Fader
 from common.utils import PinManager
 
-PIN_LED_RED = 16
-PIN_LED_GREEN = 17
+PIN_LED_GREEN = 16
+PIN_LED_RED = 17
 PIN_LED_BLUE = 18
 PIN_PUMP = 19
 
