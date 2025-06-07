@@ -58,6 +58,9 @@ class MQTT:
                 await self.connect()
                 await asyncio.sleep(1)
 
+    def publish(self, topic: str, message: str, retain: bool = False, qos: int = QOS_FIRE_AND_FORGET):
+        self.client.publish(topic, message, retain=retain, qos=qos)
+
     def subscribe(self, topic: str, callback=None, qos: int = 0):
         self.topics[topic] = Subscription(callback=callback, qos=qos)
 
