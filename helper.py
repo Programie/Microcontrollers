@@ -99,6 +99,7 @@ class RebootMCU(Action):
 
         return 0
 
+
 class Terminal(Action):
     def add_subcommand(self):
         parser = self.create_subcommand("terminal", "connect to serial console")
@@ -112,6 +113,7 @@ class Terminal(Action):
         docker_run(["picocom", str(port), "-b", "115200"], device=port)
 
         return 0
+
 
 class CreateProject(Action):
     def add_subcommand(self):
@@ -138,8 +140,9 @@ class SyncProject(Action):
         parser = self.create_subcommand("sync", "sync project files to the connected microcontroller")
         parser.add_argument("project", help="name of the project")
         parser.add_argument("--port", help="path to the microcontroller port", type=Path, default=DEFAULT_PORT)
+        parser.add_argument("--no-reboot", help="do not reboot microcontroller after sync", action="store_true")
 
-    def run(self, project: str, port: Path):
+    def run(self, project: str, port: Path, no_reboot: bool):
         base_path = Path(__file__).parent
         common_path = base_path.joinpath("common")
         project_path = base_path.joinpath(project)
@@ -153,6 +156,9 @@ class SyncProject(Action):
             return 1
 
         execute_rshell(port, ["rsync", "--mirror", "/project", "/pyboard"], volumes=[(str(project_path), "/project", "ro"), (str(common_path), "/project/common", "ro")])
+
+        if not no_reboot:
+            execute_rshell(port, ["repl", "~ import machine ~ machine.reset()~"])
 
         return 0
 
