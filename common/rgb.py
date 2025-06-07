@@ -39,7 +39,9 @@ class Fader:
 
         steps = max(abs(red_value - red), abs(green_value - green), abs(blue_value - blue))
 
-        for value in range(steps + 1):
+        print(f"Fading to RGB({red}, {green}, {blue}) in {steps} steps ({values_per_step} values per step) with {delay}s delay")
+
+        for value in range(0, steps + 1, values_per_step):
             if check_fading_active and not self.fading_active:
                 return
 
