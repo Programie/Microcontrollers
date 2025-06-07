@@ -24,6 +24,7 @@ class MQTT:
 
     async def connect(self) -> bool:
         try:
+            print("Connecting to MQTT")
             self.client.connect(clean_session=False)
             print("MQTT connected")
 
