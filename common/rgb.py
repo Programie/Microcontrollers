@@ -20,12 +20,10 @@ class Channel:
 
 
 class Fader:
-    def __init__(self, red_port: int, green_port: int, blue_port: int, delay: float):
+    def __init__(self, red_port: int, green_port: int, blue_port: int):
         self.red = Channel(red_port)
         self.green = Channel(green_port)
         self.blue = Channel(blue_port)
-
-        self.delay = delay
 
         self.fading_active = False
 
@@ -34,7 +32,7 @@ class Fader:
         self.green.set_value(green)
         self.blue.set_value(blue)
 
-    async def fade_to(self, red: int = 0, green: int = 0, blue: int = 0, check_fading_active: bool = True):
+    async def fade_to(self, red: int = 0, green: int = 0, blue: int = 0, values_per_step: int = 1, delay: float = 0.02, check_fading_active: bool = True):
         red_value = self.red.value
         green_value = self.green.value
         blue_value = self.blue.value
@@ -49,21 +47,21 @@ class Fader:
             self.green.fade_to_step(green_value, green, value, steps)
             self.blue.fade_to_step(blue_value, blue, value, steps)
 
-            await asyncio.sleep(self.delay)
+            await asyncio.sleep(delay)
 
         self.set_color(red, green, blue)
 
-    async def fade(self):
+    async def fade(self, fade_in_steps: int, fade_in_delay: float, fade_steps: int, fade_delay: float, fade_out_steps: int, fade_out_delay: float):
         self.fading_active = True
 
-        await self.fade_to(red=1023)
+        await self.fade_to(red=1023, values_per_step=fade_in_steps, delay=fade_in_delay)
 
         while self.fading_active:
-            await self.fade_to(green=1023)
-            await self.fade_to(blue=1023)
-            await self.fade_to(red=1023)
+            await self.fade_to(green=1023, values_per_step=fade_steps, delay=fade_delay)
+            await self.fade_to(blue=1023, values_per_step=fade_steps, delay=fade_delay)
+            await self.fade_to(red=1023, values_per_step=fade_steps, delay=fade_delay)
 
-        await self.fade_to(check_fading_active=False)
+        await self.fade_to(values_per_step=fade_out_steps, delay=fade_out_delay, check_fading_active=False)
 
         self.fading_active = False
 
