@@ -30,6 +30,7 @@ class App:
         await self.mqtt.connect()
 
         self.mqtt.subscribe(config.MQTT_TOPIC_CONTROL, self.handle_message, QOS_AT_LEAST_ONCE)
+        self.mqtt.publish(config.MQTT_TOPIC_STATE, "off", True, QOS_AT_LEAST_ONCE)
 
         asyncio.create_task(wlan.loop())
         asyncio.create_task(self.mqtt.loop())
