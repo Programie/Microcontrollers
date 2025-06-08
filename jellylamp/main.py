@@ -90,9 +90,13 @@ class App:
         ))
         self.pin_manager.on(PIN_PUMP)
 
+        self.mqtt.publish(config.MQTT_TOPIC_STATE, "on", True, QOS_AT_LEAST_ONCE)
+
     def power_off(self, data: dict):
         self.rgb_fader.stop()
         self.pin_manager.off(PIN_PUMP)
+
+        self.mqtt.publish(config.MQTT_TOPIC_STATE, "off", True, QOS_AT_LEAST_ONCE)
 
     def fade_to(self, data: dict):
         if self.rgb_fader_task and not self.rgb_fader_task.done():
