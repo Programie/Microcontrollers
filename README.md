@@ -33,3 +33,7 @@ Sync and reboot the microcontroller (replace `{PROJECT_NAME}` with the directory
 ```bash
 ./helper.py sync {PROJECT_NAME}
 ```
+
+## Project configuration
+
+Some projects need some additional configuration like WLAN and MQTT credentials. For that, copy the provided sample.config.py to config.py and modify it.
