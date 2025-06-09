@@ -32,5 +32,4 @@ Create a new project folder and symlink the shared files (replace `{PROJECT_NAME
 Sync and reboot the microcontroller (replace `{PROJECT_NAME}` with the directory name of the project):
 ```bash
 ./helper.py sync {PROJECT_NAME}
-./helper.py reboot
 ```
