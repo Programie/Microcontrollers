@@ -34,6 +34,7 @@ class App:
 
         asyncio.create_task(wlan.loop())
         asyncio.create_task(mqtt.loop())
+        asyncio.create_task(mqtt.process_message_queue())
 
         # Main loop sleeping for 10 ms to keep tasks responsive
         while True:

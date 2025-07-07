@@ -12,6 +12,12 @@ class Subscription:
         self.qos = qos
 
 
+class QueueItem:
+    def __init__(self, topic: str, message: str):
+        self.topic = topic
+        self.message = message
+
+
 class MQTT:
     def __init__(self, host: str, username: str, password: str) -> None:
         self.client = MQTTClient(server=host, user=username, password=password, client_id=username, keepalive=60)
@@ -19,6 +25,7 @@ class MQTT:
         self.lwt_topic = f"tele/{username}/LWT"
         self.topics: dict[str, Subscription] = {}
         self.callback = None
+        self.message_queue = []
 
         self.client.set_last_will(topic=self.lwt_topic, msg="Offline", retain=True)
 
@@ -83,11 +90,29 @@ class MQTT:
         topic = topic_bytes.decode("utf-8")
         message = message_bytes.decode("utf-8")
 
-        if topic in self.topics:
-            self.topics[topic].callback(topic, message)
-
-        if self.callback:
-            self.callback(topic, message)
+        self.message_queue.append(QueueItem(topic, message))
 
     def set_callback(self, callback):
         self.callback = callback
+
+    def get_next_queue_item(self) -> QueueItem | None:
+        if not self.message_queue:
+            return None
+
+        return self.message_queue.pop(0)
+
+    async def process_message_queue(self):
+        while True:
+            queue_item = self.get_next_queue_item()
+            if not queue_item:
+                await asyncio.sleep(0.5)
+                continue
+
+            topic = queue_item.topic
+            message = queue_item.message
+
+            if topic in self.topics:
+                self.topics[topic].callback(topic, message)
+
+            if self.callback:
+                self.callback(topic, message)
