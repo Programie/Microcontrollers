@@ -13,9 +13,16 @@ PIN_MANUAL_FEED_BUTTON = 13
 
 class App:
     def __init__(self):
+        self.mqtt = MQTT(config.MQTT_HOST, config.MQTT_USERNAME, config.MQTT_PASSWORD)
+
         self.pin_manager = PinManager()
-        self.manual_feed_button_handler = ButtonHandler(callback_released=self.trigger_feed)
+        self.manual_feed_button_handler = ButtonHandler(callback_released=self.handle_manual_feed_button)
         self.motor_switch_handler = ButtonHandler(callback_released=self.stop_motor)
+
+    def handle_manual_feed_button(self):
+        self.trigger_feed()
+
+        self.mqtt.publish(config.MQTT_TOPIC_MANUAL_FEED_CALLBACK, "triggered")
 
     def trigger_feed(self):
         self.pin_manager.on(PIN_MOTOR_RELAY)
@@ -25,16 +32,15 @@ class App:
 
     async def async_main_task(self):
         wlan = WLAN(config.WLAN_SSID, config.WLAN_PASSWORD)
-        mqtt = MQTT(config.MQTT_HOST, config.MQTT_USERNAME, config.MQTT_PASSWORD)
 
         await wlan.connect()
-        await mqtt.connect()
+        await self.mqtt.connect()
 
-        mqtt.subscribe(config.MQTT_TOPIC_TRIGGER_FEED, lambda topic, message: self.trigger_feed(), QOS_AT_LEAST_ONCE)
+        self.mqtt.subscribe(config.MQTT_TOPIC_TRIGGER_FEED, lambda topic, message: self.trigger_feed(), QOS_AT_LEAST_ONCE)
 
         asyncio.create_task(wlan.loop())
-        asyncio.create_task(mqtt.loop())
-        asyncio.create_task(mqtt.process_message_queue())
+        asyncio.create_task(self.mqtt.loop())
+        asyncio.create_task(self.mqtt.process_message_queue())
 
         # Main loop sleeping for 10 ms to keep tasks responsive
         while True:
